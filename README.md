@@ -88,7 +88,8 @@ In no particular order:
 - [x] Download tldr pages
 - [x] Unzip pages to an offline cache
 - [x] Search for and print a page
-- [ ] Find and use system cache directory 
+- [ ] Find and use system cache directory
+- [ ] If page not in platform or common folder, search other platforms with a warning
 - [ ] Prettify markdown output
 - [ ] Nix flake for building
 - [ ] GitHub Actions
