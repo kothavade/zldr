@@ -21,6 +21,7 @@ pub fn main() !void {
         std.heap.c_allocator;
 
     const parsers = comptime .{
+        // TODO: custom parser, allows lowercase input
         .platform = clap.parsers.enumeration(Platform),
         // TODO: page validator
         .page = clap.parsers.string,
@@ -59,18 +60,20 @@ pub fn main() !void {
         _ = try clap.help(stdout_file, clap.Help, &params, .{});
         return;
     }
+
     if (res.args.version != 0) {
         try stdout.print(version, .{});
         try bw.flush();
         return;
     }
+
     if (res.args.list_platforms != 0) {
         try Platform.list(stdout);
         try bw.flush();
         return;
     }
-    const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
 
+    const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
     // TODO: proper cache dir instead of cwd
     var cache = try Cache.init(allocator, fs.cwd());
     defer cache.deinit();
@@ -83,6 +86,7 @@ pub fn main() !void {
         try bw.flush();
         return;
     }
+
     if (res.args.list != 0) {
         cache.list(user_platform, stdout) catch |err| {
             switch (err) {
@@ -97,30 +101,33 @@ pub fn main() !void {
         try bw.flush();
         return;
     }
+
     if (res.positionals.len == 0) {
         try stderr_file.print("No page specified.\nRun `zldr -h to see useage.\n", .{});
         try bw.flush();
         return;
     }
-    for (res.positionals) |pos| {
-        const page = cache.getPage(user_platform, pos) catch |err| {
-            switch (err) {
-                error.UninitializedCache => {
-                    try stderr_file.print("Cache not initialized. You should call `zldr -u`.\n", .{});
-                    try bw.flush();
-                    return;
-                },
-                fs.File.OpenError.FileNotFound => {
-                    try stderr_file.print("Page not found: {s}\n", .{pos});
-                    try bw.flush();
-                    return;
-                },
-                else => |leftover| return leftover,
-            }
-        };
-        defer allocator.free(page);
-        try stdout.print("{s}", .{page});
-        try bw.flush();
-        return;
-    }
+
+    const page_name = try std.mem.join(allocator, "-", res.positionals);
+    defer allocator.free(page_name);
+
+    const page = cache.getPage(user_platform, page_name) catch |err| {
+        switch (err) {
+            error.UninitializedCache => {
+                try stderr_file.print("Cache not initialized. You should call `zldr -u`.\n", .{});
+                try bw.flush();
+                return;
+            },
+            fs.File.OpenError.FileNotFound => {
+                try stderr_file.print("Page not found: {s}\n", .{page_name});
+                try bw.flush();
+                return;
+            },
+            else => |leftover| return leftover,
+        }
+    };
+    defer allocator.free(page);
+    try stdout.print("{s}", .{page});
+    try bw.flush();
+    return;
 }
