@@ -67,7 +67,7 @@ For example, here is the tldr page for `tar`:
 
 ## Building
 
-Currently requires Zig Nightly from 05/05/2024, due to a dependency on `std.zip`.
+Currently requires Zig Nightly from 05/05/2024 (`0.13.0-dev.73+db890dbae`), due to a dependency on `std.zip`.
 
 I plan on adding a Nix flake to make building easier. 
 
