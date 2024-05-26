@@ -108,7 +108,11 @@ pub fn main() !void {
         return;
     }
 
-    const page_name = try std.mem.join(allocator, "-", res.positionals);
+    // TODO: reduce allocations
+    const page_name_joined = try std.mem.join(allocator, "-", res.positionals);
+    defer allocator.free(page_name_joined);
+
+    const page_name = try std.ascii.allocLowerString(allocator, page_name_joined);
     defer allocator.free(page_name);
 
     const page = cache.getPage(user_platform, page_name) catch |err| {
