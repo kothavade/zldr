@@ -2,31 +2,31 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub const Platform = enum {
-    Android,
-    Common,
-    FreeBSD,
-    Linux,
-    NetBSD,
-    OpenBSD,
-    OSX,
-    SunOS,
-    Windows,
+    android,
+    common,
+    freebsd,
+    linux,
+    netbsd,
+    openbsd,
+    osx,
+    sunos,
+    windows,
 
     /// Returns the platform correspoding to the target OS.
     pub fn getPlatform() Platform {
         var platform: Platform = undefined;
         if (builtin.target.isAndroid()) {
-            platform = Platform.Android;
+            platform = Platform.android;
         } else {
             platform = switch (builtin.target.os.tag) {
-                .freebsd => Platform.FreeBSD,
-                .linux => Platform.Linux,
-                .netbsd => Platform.NetBSD,
-                .openbsd => Platform.OpenBSD,
-                .macos => Platform.OSX,
-                .solaris => Platform.SunOS,
-                .windows => Platform.Windows,
-                else => Platform.Common,
+                .freebsd => Platform.freebsd,
+                .linux => Platform.linux,
+                .netbsd => Platform.netbsd,
+                .openbsd => Platform.openbsd,
+                .macos => Platform.osx,
+                .solaris => Platform.sunos,
+                .windows => Platform.windows,
+                else => Platform.common,
             };
         }
         return platform;

@@ -78,6 +78,14 @@ pub fn update(self: *Cache) !void {
     try std.zip.extract(self.cache_dir.?, tmp_file.f.seekableStream(), .{});
 }
 
+fn dirHasFile(dir: fs.Dir, file_name: []const u8) !bool {
+    dir.access(file_name, .{}) catch |err| switch (err) {
+        fs.Dir.AccessError.FileNotFound => return false,
+        else => return err,
+    };
+    return true;
+}
+
 /// Returns the content of a page from the cache.
 /// Checks the platform folder, and falls back to the common folder if the page is not found.
 /// Must be called after the cache is initialized with `init`, and filled with `update`.
@@ -87,27 +95,36 @@ pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const 
     if (self.cache_dir == null) {
         return error.UninitializedCache;
     }
-    const platform_folder = try std.ascii.allocLowerString(self.allocator, @tagName(platform));
-    defer self.allocator.free(platform_folder);
-
-    const page_file_path = try std.mem.concat(self.allocator, u8, &.{ page_name, ".md" });
-    defer self.allocator.free(page_file_path);
-
-    const page_path = try std.fs.path.join(self.allocator, &.{ platform_folder, page_file_path });
-    defer self.allocator.free(page_path);
+    const page_file_name = try std.mem.concat(self.allocator, u8, &.{ page_name, ".md" });
+    defer self.allocator.free(page_file_name);
 
     var page_file: fs.File = undefined;
-    if (self.cache_dir.?.openFile(page_path, .{ .mode = .read_only })) |file| {
-        page_file = file;
-    } else |err| switch (err) {
-        fs.File.OpenError.FileNotFound => {
-            const common_page_path = try std.fs.path.join(self.allocator, &.{ "common", page_file_path });
-            defer self.allocator.free(common_page_path);
-            page_file = try self.cache_dir.?.openFile(common_page_path, .{ .mode = .read_only });
-        },
-        else => |leftover_err| return leftover_err,
-    }
     defer page_file.close();
+
+    var found_dir: ?fs.Dir = null;
+    defer found_dir.?.close();
+
+    if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(platform), .{}), page_file_name) == true) {
+        found_dir = try self.cache_dir.?.openDir(@tagName(platform), .{});
+    } else if (try dirHasFile(try self.cache_dir.?.openDir("common", .{}), page_file_name) == true) {
+        found_dir = try self.cache_dir.?.openDir("common", .{});
+    } else {
+        const values = std.enums.values(Platform);
+        for (values) |p| {
+            if (p == Platform.common or p == platform) continue;
+            if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(p), .{}), page_file_name) == true) {
+                std.log.warn("Page not found in platform or common folder, falling back to {s}", .{@tagName(p)});
+                found_dir = try self.cache_dir.?.openDir(@tagName(p), .{});
+                break;
+            }
+        }
+    }
+
+    if (found_dir == null) {
+        return error.PageNotFound;
+    }
+
+    page_file = try found_dir.?.openFile(page_file_name, .{ .mode = .read_only });
 
     const page_size = try page_file.seekableStream().getEndPos();
     const page_content = try page_file.readToEndAlloc(self.allocator, page_size);

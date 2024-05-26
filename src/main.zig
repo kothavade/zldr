@@ -118,7 +118,7 @@ pub fn main() !void {
                 try bw.flush();
                 return;
             },
-            fs.File.OpenError.FileNotFound => {
+            error.PageNotFound => {
                 try stderr_file.print(
                     // TODO: use terminal link escape codes
                     "Page for `{s}` not found.\nYou can request a page for this command here: https://github.com/tldr-pages/tldr/issues/new?title=page%20request:%20{s}\n",

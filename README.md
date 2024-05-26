@@ -89,7 +89,8 @@ In no particular order:
 - [x] Unzip pages to an offline cache
 - [x] Search for and print a page
 - [ ] Find and use system cache directory
-- [ ] If page not in platform or common folder, search other platforms with a warning
+  - <https://docs.rs/dirs/latest/dirs/fn.cache_dir.html>
+- [x] If page not in platform or common folder, search other platforms with a warning
 - [ ] Prettify markdown output
 - [ ] Nix flake for building
 - [ ] GitHub Actions
