@@ -11,8 +11,7 @@ For example, here is the tldr page for `tar`:
 <details>
   <summary>Click to expand</summary>
   
-```
-  # tar
+  ### tar
 
 > Archiving utility.
 > Often combined with a compression method, such as `gzip` or `bzip2`.
@@ -49,7 +48,7 @@ For example, here is the tldr page for `tar`:
 - E[x]tract files matching a pattern from an archive [f]ile:
 
 `tar xf {{path/to/source.tar}} --wildcards "{{*.html}}"`
-```
+
 
 </details>
 
@@ -96,6 +95,7 @@ In no particular order:
 - [ ] Support language selection and detection
 - [ ] tldr Client Specification Conformance
 - [ ] Shell autocompletions
+- [ ] Charmbracelet/vhs GIF for README
 
 ## Credits
 
