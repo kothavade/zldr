@@ -65,7 +65,7 @@ For example, here is the tldr page for `tar`:
 <page>
 ```
 
-### Building
+## Building
 
 Currently requires Zig Nightly from 05/05/2024, due to a dependency on `std.zip`.
 
