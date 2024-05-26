@@ -98,11 +98,7 @@ pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const 
     const page_file_name = try std.mem.concat(self.allocator, u8, &.{ page_name, ".md" });
     defer self.allocator.free(page_file_name);
 
-    var page_file: fs.File = undefined;
-    defer page_file.close();
-
     var found_dir: ?fs.Dir = null;
-    defer found_dir.?.close();
 
     if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(platform), .{}), page_file_name) == true) {
         found_dir = try self.cache_dir.?.openDir(@tagName(platform), .{});
@@ -123,8 +119,10 @@ pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const 
     if (found_dir == null) {
         return error.PageNotFound;
     }
+    defer found_dir.?.close();
 
-    page_file = try found_dir.?.openFile(page_file_name, .{ .mode = .read_only });
+    var page_file = try found_dir.?.openFile(page_file_name, .{ .mode = .read_only });
+    defer page_file.close();
 
     const page_size = try page_file.seekableStream().getEndPos();
     const page_content = try page_file.readToEndAlloc(self.allocator, page_size);
