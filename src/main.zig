@@ -73,7 +73,7 @@ pub fn main() !void {
         return;
     }
 
-    const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
+    const platform = if (res.args.platform) |p| p else Platform.getPlatform();
     // TODO: proper cache dir instead of cwd
     var cache = try Cache.init(allocator, fs.cwd());
     defer cache.deinit();
@@ -88,7 +88,7 @@ pub fn main() !void {
     }
 
     if (res.args.list != 0) {
-        cache.list(user_platform, stdout) catch |err| {
+        cache.list(platform, stdout) catch |err| {
             switch (err) {
                 error.UninitializedCache => {
                     try stderr_file.print("Cache not initialized. You should call `zldr -u`.\n", .{});
@@ -115,7 +115,7 @@ pub fn main() !void {
     const page_name = try std.ascii.allocLowerString(allocator, page_name_joined);
     defer allocator.free(page_name);
 
-    const page = cache.getPage(user_platform, page_name) catch |err| {
+    const page = cache.getPage(platform, page_name) catch |err| {
         switch (err) {
             error.UninitializedCache => {
                 try stderr_file.print("Cache not initialized. You should call `zldr -u`.\n", .{});
