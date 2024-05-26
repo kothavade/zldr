@@ -76,6 +76,12 @@ pub fn main() !void {
 
     if (res.args.update != 0) {
         try cache.update();
+        return;
+    }
+    if (res.positionals.len == 0) {
+        try stderr_file.print("No page specified.\nRun `zldr -h to see useage.\n", .{});
+        try bw.flush();
+        return;
     }
     for (res.positionals) |pos| {
         const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
