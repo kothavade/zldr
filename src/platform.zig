@@ -36,7 +36,7 @@ pub const Platform = enum {
     pub fn list(writer: anytype) !void {
         try writer.print("Available platforms:\n", .{});
         for (std.enums.values(Platform)) |p| {
-            try writer.print("\t{s}\n", .{@tagName(p)});
+            try writer.print(" - {s}\n", .{@tagName(p)});
         }
     }
 };
