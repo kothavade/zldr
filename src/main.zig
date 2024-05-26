@@ -5,6 +5,7 @@ const fs = std.fs;
 const builtin = @import("builtin");
 
 const clap = @import("clap");
+const kf = @import("known-folders");
 
 const Cache = @import("cache.zig");
 const Platform = @import("platform.zig").Platform;
@@ -74,8 +75,15 @@ pub fn main() !void {
     }
 
     const platform = if (res.args.platform) |p| p else Platform.getPlatform();
-    // TODO: proper cache dir instead of cwd
-    var cache = try Cache.init(allocator, fs.cwd());
+
+    var cache_dir = try kf.open(allocator, kf.KnownFolder.cache, .{}) orelse {
+        try stderr_file.print("Failed to get system cache directory.\n", .{});
+        try bw.flush();
+        return;
+    };
+    defer cache_dir.close();
+
+    var cache = try Cache.init(allocator, cache_dir);
     defer cache.deinit();
 
     if (res.args.update != 0) {

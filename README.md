@@ -73,10 +73,10 @@ I plan on adding a Nix flake to make building easier.
 
 ```sh
 # Debug build
-zig build
+zig build -Dfetch
 
 # Release build
-zig build --release=fast # or --release=safe, --release=small depending on your preferences
+zig build -Dfetch --release=fast # or --release=safe, --release=small depending on your preferences
 
 # Run (after building)
 ./zig-out/bin/zldr
@@ -88,8 +88,7 @@ In no particular order:
 - [x] Download tldr pages
 - [x] Unzip pages to an offline cache
 - [x] Search for and print a page
-- [ ] Find and use system cache directory
-  - <https://docs.rs/dirs/latest/dirs/fn.cache_dir.html>
+- [x] Find and use system cache directory
 - [x] If page not in platform or common folder, search other platforms with a warning
 - [ ] Prettify markdown output
 - [ ] Nix flake for building
@@ -104,6 +103,8 @@ In no particular order:
 ## Credits
 
 
+- [GitRepoStep.zig](./GitRepoStep.zig) is a modified version of [marler8997/zig-build-repos](https://github.com/marler8997/zig-build-repos) used for package management.
 - [src/tmpfile.zig](./src/tmpfile.zig) is a modified version of [liyu1981/tmpfile.zig](https://github.com/liyu1981/tmpfile.zig).
 - [zig-clap](https://github.com/liyu1981/tmpfile.zig) is used for CLI argument parsing.
+- [ziglibs/known-folders](https://github.com/ziglibs/known-folders) is used to find the cache directory.
 

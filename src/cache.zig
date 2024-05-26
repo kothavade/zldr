@@ -7,6 +7,7 @@ const Platform = @import("platform.zig").Platform;
 const tmpfile = @import("tmpfile.zig");
 
 const Cache = @This();
+const cache_dir_name = "zldr";
 
 allocator: Allocator,
 parent_dir: fs.Dir,
@@ -15,7 +16,7 @@ cache_dir: ?fs.Dir,
 /// Initializes the cache inside the parent directory.
 pub fn init(allocator: Allocator, parent_dir: fs.Dir) !Cache {
     var cache_dir: ?fs.Dir = undefined;
-    if (parent_dir.openDir("cache", .{})) |dir| {
+    if (parent_dir.openDir(cache_dir_name, .{})) |dir| {
         cache_dir = dir;
     } else |err| switch (err) {
         fs.Dir.OpenError.FileNotFound => {
@@ -42,10 +43,10 @@ pub fn update(self: *Cache) !void {
         // TODO: this seems bad
         // TODO: refactor into a clear cache method
         self.cache_dir.?.close();
-        try self.parent_dir.deleteTree("cache");
+        try self.parent_dir.deleteTree(cache_dir_name);
     }
-    try self.parent_dir.makeDir("cache");
-    self.cache_dir = try self.parent_dir.openDir("cache", .{});
+    try self.parent_dir.makeDir(cache_dir_name);
+    self.cache_dir = try self.parent_dir.openDir(cache_dir_name, .{});
 
     const url: []const u8 = "https://github.com/tldr-pages/tldr/releases/latest/download/tldr-pages.zip";
     var client = http.Client{ .allocator = self.allocator };
@@ -100,15 +101,15 @@ pub fn getPage(self: *Cache, platform: Platform, page_name: []const u8) ![]const
 
     var found_dir: ?fs.Dir = null;
 
-    if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(platform), .{}), page_file_name) == true) {
+    if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(platform), .{}), page_file_name)) {
         found_dir = try self.cache_dir.?.openDir(@tagName(platform), .{});
-    } else if (try dirHasFile(try self.cache_dir.?.openDir("common", .{}), page_file_name) == true) {
+    } else if (try dirHasFile(try self.cache_dir.?.openDir("common", .{}), page_file_name)) {
         found_dir = try self.cache_dir.?.openDir("common", .{});
     } else {
         const values = std.enums.values(Platform);
         for (values) |p| {
             if (p == Platform.common or p == platform) continue;
-            if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(p), .{}), page_file_name) == true) {
+            if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(p), .{}), page_file_name)) {
                 std.log.warn("Page not found in platform or common folder, falling back to {s}", .{@tagName(p)});
                 found_dir = try self.cache_dir.?.openDir(@tagName(p), .{});
                 break;
@@ -129,14 +130,13 @@ pub fn getPage(self: *Cache, platform: Platform, page_name: []const u8) ![]const
     return page_content;
 }
 
+/// Writes a list of all pages in the cache for a given Platform to a writer.
 pub fn list(self: *Cache, platform: Platform, writer: anytype) !void {
     if (self.cache_dir == null) {
         return error.UninitializedCache;
     }
-    const platform_folder = try std.ascii.allocLowerString(self.allocator, @tagName(platform));
-    defer self.allocator.free(platform_folder);
 
-    var platform_dir = try self.cache_dir.?.openDir(platform_folder, .{ .iterate = true });
+    var platform_dir = try self.cache_dir.?.openDir(@tagName(platform), .{ .iterate = true });
     defer platform_dir.close();
 
     var iter = platform_dir.iterate();
