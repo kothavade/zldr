@@ -119,7 +119,11 @@ pub fn main() !void {
                 return;
             },
             fs.File.OpenError.FileNotFound => {
-                try stderr_file.print("Page not found: {s}\n", .{page_name});
+                try stderr_file.print(
+                    // TODO: use terminal link escape codes
+                    "Page for `{s}` not found.\nYou can request a page for this command here: https://github.com/tldr-pages/tldr/issues/new?title=page%20request:%20{s}\n",
+                    .{ page_name, page_name },
+                );
                 try bw.flush();
                 return;
             },
