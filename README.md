@@ -93,7 +93,7 @@ In no particular order:
 - [ ] Nix flake for building
 - [ ] GitHub Actions
 - [ ] Support language selection and detection
-- [ ] tldr Client Specification Conformance
+- [ ] [tldr-pages client specification](https://github.com/tldr-pages/tldr/blob/main/CLIENT-SPECIFICATION.md) conformance
 - [ ] Shell autocompletions
 - [ ] Charmbracelet/vhs GIF for README
 
