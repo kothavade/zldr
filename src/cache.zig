@@ -113,3 +113,20 @@ pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const 
     const page_content = try page_file.readToEndAlloc(self.allocator, page_size);
     return page_content;
 }
+
+pub fn list(self: *Cache, platform: Platform, writer: anytype) !void {
+    if (self.cache_dir == null) {
+        return error.UninitializedCache;
+    }
+    const platform_folder = try std.ascii.allocLowerString(self.allocator, @tagName(platform));
+    defer self.allocator.free(platform_folder);
+
+    var platform_dir = try self.cache_dir.?.openDir(platform_folder, .{ .iterate = true });
+    defer platform_dir.close();
+
+    var iter = platform_dir.iterate();
+    while (try iter.next()) |entry| {
+        _ = try writer.write(entry.name[0 .. entry.name.len - 3]);
+        _ = try writer.write("\n");
+    }
+}

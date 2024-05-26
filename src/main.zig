@@ -37,7 +37,7 @@ pub fn main() !void {
         \\-v, --version               Get zldr version 
         \\-p, --platform <platform>   Search using a specific platform
         \\-u, --update                Update the tldr pages cache
-        \\-l, --list                  List all available pages
+        \\-l, --list                  List all pages for the current platform
         \\    --list_platforms        List all available platforms
         \\<page>
     );
@@ -69,6 +69,7 @@ pub fn main() !void {
         try bw.flush();
         return;
     }
+    const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
 
     // TODO: proper cache dir instead of cwd
     var cache = try Cache.init(allocator, fs.cwd());
@@ -78,13 +79,17 @@ pub fn main() !void {
         try cache.update();
         return;
     }
+    if (res.args.list != 0) {
+        try cache.list(user_platform, stdout);
+        try bw.flush();
+        return;
+    }
     if (res.positionals.len == 0) {
         try stderr_file.print("No page specified.\nRun `zldr -h to see useage.\n", .{});
         try bw.flush();
         return;
     }
     for (res.positionals) |pos| {
-        const user_platform = if (res.args.platform) |p| p else Platform.getPlatform();
         const page = cache.getPage(user_platform, pos) catch |err| {
             switch (err) {
                 error.UninitializedCache => {
