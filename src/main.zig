@@ -76,11 +76,24 @@ pub fn main() !void {
     defer cache.deinit();
 
     if (res.args.update != 0) {
+        try stdout.print("Updating cache...\n", .{});
+        try bw.flush();
         try cache.update();
+        try stdout.print("Updated cache!\n", .{});
+        try bw.flush();
         return;
     }
     if (res.args.list != 0) {
-        try cache.list(user_platform, stdout);
+        cache.list(user_platform, stdout) catch |err| {
+            switch (err) {
+                error.UninitializedCache => {
+                    try stderr_file.print("Cache not initialized. You should call `zldr -u`.\n", .{});
+                    try bw.flush();
+                    return;
+                },
+                else => |leftover| return leftover,
+            }
+        };
         try bw.flush();
         return;
     }

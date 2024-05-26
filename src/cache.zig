@@ -126,6 +126,7 @@ pub fn list(self: *Cache, platform: Platform, writer: anytype) !void {
 
     var iter = platform_dir.iterate();
     while (try iter.next()) |entry| {
+        // Strip `.md`
         _ = try writer.write(entry.name[0 .. entry.name.len - 3]);
         _ = try writer.write("\n");
     }
