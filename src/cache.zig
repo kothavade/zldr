@@ -87,8 +87,8 @@ fn dirHasFile(dir: fs.Dir, file_name: []const u8) !bool {
 }
 
 /// Returns the content of a page from the cache.
-/// Checks the platform folder, and falls back to the common folder if the page is not found.
-/// Must be called after the cache is initialized with `init`, and filled with `update`.
+/// Checks the platform folder, common folder, and then all other folders.
+/// Must be called after the cache is initialized with `init`.
 /// Allocates memory to the result, which must be freed by the caller.
 // TODO: many unnecessary allocations
 pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const u8 {
