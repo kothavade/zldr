@@ -91,7 +91,7 @@ fn dirHasFile(dir: fs.Dir, file_name: []const u8) !bool {
 /// Must be called after the cache is initialized with `init`.
 /// Allocates memory to the result, which must be freed by the caller.
 // TODO: many unnecessary allocations
-pub fn getPage(self: Cache, platform: Platform, page_name: []const u8) ![]const u8 {
+pub fn getPage(self: *Cache, platform: Platform, page_name: []const u8) ![]const u8 {
     if (self.cache_dir == null) {
         return error.UninitializedCache;
     }
