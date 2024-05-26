@@ -96,7 +96,9 @@ In no particular order:
 - [ ] Support language selection and detection
 - [ ] [tldr-pages client specification](https://github.com/tldr-pages/tldr/blob/main/CLIENT-SPECIFICATION.md) conformance
 - [ ] Shell autocompletions
-- [ ] Charmbracelet/vhs GIF for README
+- [ ] [charmbracelet/vhs](https://github.com/charmbracelet/vhs) GIF for README
+- [ ] Add tests
+- [ ] Only update cache if there has been a change since last update
 
 ## Credits
 
