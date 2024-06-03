@@ -146,10 +146,25 @@ pub fn list(self: *Cache, platform: Platform, writer: anytype) !void {
     var platform_dir = try self.cache_dir.?.openDir(@tagName(platform), .{ .iterate = true });
     defer platform_dir.close();
 
-    var iter = platform_dir.iterate();
-    while (try iter.next()) |entry| {
+    var p_iter = platform_dir.iterate();
+    while (try p_iter.next()) |entry| {
         // Strip `.md`
         _ = try writer.write(entry.name[0 .. entry.name.len - 3]);
         _ = try writer.write("\n");
+    }
+
+    if (platform != Platform.common) {
+        var common_dir = try self.cache_dir.?.openDir("common", .{ .iterate = true });
+        defer common_dir.close();
+        var c_iter = common_dir.iterate();
+        while (try c_iter.next()) |entry| {
+            // Strip `.md`
+            if (try dirHasFile(platform_dir, entry.name)) {
+                continue;
+            }
+            _ = try writer.write(entry.name[0 .. entry.name.len - 3]);
+            _ = try writer.write("\n");
+        }
+        return;
     }
 }

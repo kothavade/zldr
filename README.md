@@ -151,7 +151,6 @@ In no particular order:
 - [ ] Shell autocompletions
 - [ ] [charmbracelet/vhs](https://github.com/charmbracelet/vhs) GIF for README
 - [ ] Add tests
-- [ ] List common pkgs in `-l` as well
 - [ ] use `std.Progress`
 
 ## Credits

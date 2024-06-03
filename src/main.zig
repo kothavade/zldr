@@ -25,9 +25,7 @@ pub fn main() !void {
         std.heap.c_allocator;
 
     const parsers = comptime .{
-        // TODO: custom parser, allows lowercase input
         .platform = clap.parsers.enumeration(Platform),
-        // TODO: page validator
         .page = clap.parsers.string,
         .dir = clap.parsers.string,
     };
