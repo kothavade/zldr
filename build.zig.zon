@@ -2,7 +2,20 @@
     .name = "zldr",
     .version = "0.0.1",
     .minimum_zig_version = "0.13.0-dev.351+64ef45eb0",
-    .dependencies = .{},
+    .dependencies = .{
+        .clap = .{
+            .url = "git+https://github.com/Hejsil/zig-clap#60cd46aacff4960104703da9ba683077b1e3c76c",
+            .hash = "12205eb22c644df2469045083efe9c92189d56494ebe8901b36ef1218c3717e6eb78",
+        },
+        .@"ansi-term" = .{
+            .url = "git+https://github.com/kothavade/ansi-term#dd2bca67f89c5b216b0b8187307d0b44b2488a27",
+            .hash = "12200719196e0abd325efa248fb03882c8fa2c7130e3ae1d57dbff72afc846b28495",
+        },
+        .@"known-folders" = .{
+            .url = "git+https://github.com/kothavade/known-folders#e35991df7c77ac2fc9271dbf42c20b07b2ed98d1",
+            .hash = "12207da92178d43c769dfcd1f256bc9f50ce545244b0e3cc189ff985c8d567c04d99",
+        },
+    },
     .paths = .{
         "",
     },

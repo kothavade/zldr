@@ -1,5 +1,4 @@
 const std = @import("std");
-const GitRepoStep = @import("GitRepoStep.zig");
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -13,39 +12,14 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
 
-    const clap_repo = GitRepoStep.create(b, .{
-        .url = "https://github.com/Hejsil/zig-clap",
-        .branch = "master",
-        .sha = "7a2883c7b884ab3e88c9fbf29193894a844da4d5",
-    });
-    exe.step.dependOn(&clap_repo.step);
-    exe.root_module.addAnonymousImport("clap", .{ .root_source_file = b.path(try std.fs.path.join(b.allocator, &[_][]const u8{
-        clap_repo.getPath(&exe.step),
-        "clap.zig",
-    })) });
+    const clap = b.dependency("clap", .{});
+    exe.root_module.addImport("clap", clap.module("clap"));
 
-    const known_folders_repo = GitRepoStep.create(b, .{
-        .url = "https://github.com/ziglibs/known-folders",
-        .branch = "master",
-        .sha = "0ad514dcfb7525e32ae349b9acc0a53976f3a9fa",
-    });
-    exe.step.dependOn(&known_folders_repo.step);
-    exe.root_module.addAnonymousImport("known-folders", .{ .root_source_file = b.path(try std.fs.path.join(b.allocator, &[_][]const u8{
-        known_folders_repo.getPath(&exe.step),
-        "known-folders.zig",
-    })) });
+    const known_folders = b.dependency("known-folders", .{});
+    exe.root_module.addImport("known-folders", known_folders.module("known-folders"));
 
-    // FIXME: currently uses my branch, switch to upstream once merged
-    const ansi_term_repo = GitRepoStep.create(b, .{
-        .url = "https://github.com/kothavade/ansi-term",
-        .branch = "patch-1",
-        .sha = "11919b5b904a0cf05cb5c3d0cfb6a0f0076bec46",
-    });
-    exe.step.dependOn(&ansi_term_repo.step);
-    exe.root_module.addAnonymousImport("ansi-term", .{ .root_source_file = b.path(try std.fs.path.join(b.allocator, &[_][]const u8{
-        ansi_term_repo.getPath(&exe.step),
-        "src/main.zig",
-    })) });
+    const ansi_term = b.dependency("ansi-term", .{});
+    exe.root_module.addImport("ansi-term", ansi_term.module("ansi-term"));
 
     if (optimize != .Debug) {
         exe.linkLibC();
