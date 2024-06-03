@@ -89,13 +89,38 @@ Summary
 ## Usage
 
 ```
--h, --help                  Print help
--v, --version               Get zldr version 
--p, --platform <platform>   Search using a specific platform
--u, --update                Update the tldr pages cache
--l, --list                  List all available pages
-    --list_platforms        List all available platforms
-<page>
+zldr v0.0.1
+Ved Kothavade <ved@kothavade.com>
+      __    __    
+ ____/ /___/ /____
+/_  / / __  / ___/
+ / /_/ /_/ / /    
+/___/\__,_/_/     
+
+A fast tdlr client written in Zig
+
+USAGE:
+    zldr [OPTIONS] <page>
+
+OPTIONS:
+
+    -h, --help                       Print help
+
+    -v, --version                    Get zldr version
+
+    -p, --platform <platform>        Search using a specific platform
+
+    -u, --update                     Update the tldr pages cache
+
+    -l, --list                       List all pages for the current platform
+
+    -c, --clear-cache                Clear the cache
+
+        --list-platforms             List all available platforms
+
+        --cache-dir <dir>            Specify the cache directory to use (default: ${system cache directory}/zldr)
+
+    <page>                           The command to show the tldr page for
 ```
 
 ## Building
