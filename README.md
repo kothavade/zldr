@@ -57,29 +57,33 @@ For example, here is the tldr page for `tar`:
 Here are some rudimentary benchmarks of `zldr` against [tealdeer](https://github.com/dbrgn/tealdeer), [tlrc](https://github.com/tldr-pages/tlrc), and [tldr-c-client](https://github.com/tldr-pages/tldr-c-client) using [hyperfine](https://github.com/sharkdp/hyperfine) on my machine. Each of the other clients was downloaded from nixpkgs, presumably build their respective release modes, and `zldr` was built with `--release=fast`.
 
 ```
-~/code/zldr main* 11s  impure λ hyperfine "/nix/store/...-tealdeer-1.6.1/bin/tldr ip" -n "tealdeer (rust, unoffical)" "/nix/store/...-tlrc-1.9.2/bin/tldr ip" -n "tlrc (rust, offical)" "/nix/store/...-tldr-1.6.1/bin/tldr ip" -n "tldr-c (c, offical)" "./zig-out/bin/zldr ip" -n "zldr (zig, unoffical)" -N --warmup 10
+~/code/zldr main λ hyperfine -N --warmup 10 \
+  "/nix/store/...-tealdeer-1.6.1/bin/tldr ip" -n "tealdeer (rust, unoffical)" \
+  "/nix/store/...-tlrc-1.9.2/bin/tldr ip" -n "tlrc (rust, offical)" \
+  "/nix/store/...-tldr-1.6.1/bin/tldr ip" -n "tldr-c (c, offical)" \
+  "./zig-out/bin/zldr ip" -n "zldr (zig, unoffical)"
 
 Benchmark 1: tealdeer (rust, unoffical)
-  Time (mean ± σ):     806.1 µs ±  61.6 µs    [User: 258.8 µs, System: 480.5 µs]
-  Range (min … max):   659.9 µs … 1045.6 µs    2886 runs
+  Time (mean ± σ):     802.5 µs ±  63.7 µs    [User: 297.4 µs, System: 436.2 µs]
+  Range (min … max):   663.7 µs … 1075.9 µs    4190 runs
  
 Benchmark 2: tlrc (rust, offical)
-  Time (mean ± σ):     913.7 µs ±  65.5 µs    [User: 257.1 µs, System: 585.5 µs]
-  Range (min … max):   754.0 µs … 1201.1 µs    3819 runs
+  Time (mean ± σ):     912.5 µs ±  66.6 µs    [User: 279.0 µs, System: 562.4 µs]
+  Range (min … max):   758.4 µs … 1188.3 µs    3039 runs
  
 Benchmark 3: tldr-c (c, offical)
   Time (mean ± σ):       2.4 ms ±   0.1 ms    [User: 0.8 ms, System: 1.5 ms]
-  Range (min … max):     2.2 ms …   2.9 ms    1298 runs
+  Range (min … max):     2.2 ms …   2.7 ms    1211 runs
  
 Benchmark 4: zldr (zig, unoffical)
-  Time (mean ± σ):     432.2 µs ±  41.0 µs    [User: 253.4 µs, System: 121.4 µs]
-  Range (min … max):   360.7 µs … 656.8 µs    7077 runs
+  Time (mean ± σ):     431.6 µs ±  39.7 µs    [User: 255.4 µs, System: 121.0 µs]
+  Range (min … max):   364.0 µs … 603.0 µs    7221 runs
  
 Summary
   zldr (zig, unoffical) ran
-    1.87 ± 0.23 times faster than tealdeer (rust, unoffical)
+    1.86 ± 0.23 times faster than tealdeer (rust, unoffical)
     2.11 ± 0.25 times faster than tlrc (rust, offical)
-    5.54 ± 0.56 times faster than tldr-c (c, offical)
+    5.54 ± 0.55 times faster than tldr-c (c, offical)
 ```
 
 ## Usage
