@@ -156,8 +156,6 @@ In no particular order:
 
 ## Credits
 
-
-- [GitRepoStep.zig](./GitRepoStep.zig) is a modified version of [marler8997/zig-build-repos](https://github.com/marler8997/zig-build-repos) used for package management.
 - [src/tmpfile.zig](./src/tmpfile.zig) is a modified version of [liyu1981/tmpfile.zig](https://github.com/liyu1981/tmpfile.zig).
 - [zig-clap](https://github.com/liyu1981/tmpfile.zig) is used for CLI argument parsing.
 - [ziglibs/known-folders](https://github.com/ziglibs/known-folders) is used to find the cache directory.
