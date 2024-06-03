@@ -80,7 +80,7 @@ fn hasDependency(step: *const std.Build.Step, dep_candidate: *const std.Build.St
     return false;
 }
 
-fn make(step: *std.Build.Step, prog_node: *std.Progress.Node) !void {
+fn make(step: *std.Build.Step, prog_node: std.Progress.Node) !void {
     _ = prog_node;
     const self = @as(*GitRepoStep, @fieldParentPtr("step", step));
 
@@ -144,13 +144,13 @@ fn checkSha(self: GitRepoStep) !void {
             "HEAD",
         };
         const result = switch (zig_version) {
-            .master => std.ChildProcess.run(.{
+            .master => std.process.Child.run(.{
                 .allocator = self.step.owner.allocator,
                 .argv = argv,
                 .cwd = self.step.owner.build_root.path,
                 .env_map = &self.step.owner.graph.env_map,
             }) catch |e| break :blk .{ .failed = e },
-            .release => std.ChildProcess.exec(.{
+            .release => std.process.Child.exec(.{
                 .allocator = self.step.owner.allocator,
                 .argv = argv,
                 .cwd = self.step.owner.build_root.path,
@@ -193,7 +193,7 @@ fn run(builder: *std.Build, argv: []const []const u8) !void {
         std.log.info("[RUN] {s}", .{msg.items});
     }
 
-    var child = std.ChildProcess.init(argv, builder.allocator);
+    var child = std.process.Child.init(argv, builder.allocator);
     child.stdin_behavior = .Ignore;
     child.stdout_behavior = .Inherit;
     child.stderr_behavior = .Inherit;

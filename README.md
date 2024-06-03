@@ -67,9 +67,9 @@ For example, here is the tldr page for `tar`:
 
 ## Building
 
-Currently requires Zig Nightly from 05/05/2024 (`0.13.0-dev.73+db890dbae`), due to a dependency on `std.zip`.
+Currently requires the latest Zig Nightly (`0.13.0-dev.351+64ef45eb0`).
 
-I plan on adding a Nix flake to make building easier. 
+I plan on adding a Nix flake to make building easier.
 
 ```sh
 # Debug build
@@ -90,7 +90,7 @@ In no particular order:
 - [x] Search for and print a page
 - [x] Find and use system cache directory
 - [x] If page not in platform or common folder, search other platforms with a warning
-- [ ] Prettify markdown output
+- [x] Prettify markdown output
 - [ ] Nix flake for building
 - [ ] GitHub Actions
 - [ ] Support language selection and detection
@@ -99,6 +99,7 @@ In no particular order:
 - [ ] [charmbracelet/vhs](https://github.com/charmbracelet/vhs) GIF for README
 - [ ] Add tests
 - [ ] Only update cache if there has been a change since last update
+- [ ] use `std.Progress`
 
 ## Credits
 

@@ -11,6 +11,7 @@ const at = @import("ansi-term");
 const Cache = @import("cache.zig");
 const Platform = @import("platform.zig").Platform;
 const Formatter = @import("formatter.zig");
+const Err = @import("err-printer.zig");
 
 const version = "zldr v0.0.1\n";
 
@@ -28,6 +29,7 @@ pub fn main() !void {
         .platform = clap.parsers.enumeration(Platform),
         // TODO: page validator
         .page = clap.parsers.string,
+        .dir = clap.parsers.string,
     };
 
     const out = io.getStdOut();
@@ -37,6 +39,7 @@ pub fn main() !void {
     const stdout = bw.writer();
 
     const stderr = io.getStdErr().writer();
+    var errPrinter = try Err.init(stderr, is_tty);
 
     const params = comptime clap.parseParamsComptime(
         \\-h, --help                  Print help
@@ -44,8 +47,10 @@ pub fn main() !void {
         \\-p, --platform <platform>   Search using a specific platform
         \\-u, --update                Update the tldr pages cache
         \\-l, --list                  List all pages for the current platform
-        \\    --list_platforms        List all available platforms
-        \\<page>
+        \\-c, --clear-cache           Clear the cache
+        \\    --list-platforms        List all available platforms
+        \\    --cache-dir <dir>       Specify the cache directory to use (default: ${system cache directory}/zldr)
+        \\<page>                      The command to show the tldr page for
     );
 
     var diag = clap.Diagnostic{};
@@ -61,13 +66,23 @@ pub fn main() !void {
 
     if (res.args.help != 0) {
         try stdout.print(version, .{});
-        try stdout.print("Ved Kothavade <ved@kothavade.com>\n", .{});
-        try stdout.print("A fast tdlr client written in Zig\n\n", .{});
-        try stdout.print("USAGE:\n\tzldr [OPTIONS] <page>\n", .{});
-        try stdout.print("ARGS:\n\t<page>:\tThe command to show the tldr page for\n", .{});
-        try stdout.print("OPTIONS:\n", .{});
+        try stdout.print("Ved Kothavade <ved@kothavade.com>", .{});
+        try stdout.print(
+            \\
+            \\      __    __    
+            \\ ____/ /___/ /____
+            \\/_  / / __  / ___/
+            \\ / /_/ /_/ / /    
+            \\/___/\__,_/_/     
+        , .{});
+        try stdout.print("\n\nA fast tdlr client written in Zig\n\n", .{});
+        try stdout.print("USAGE:\n    zldr [OPTIONS] <page>\n\n", .{});
+        try stdout.print("OPTIONS:\n\n", .{});
         try bw.flush();
-        _ = try clap.help(out_writer, clap.Help, &params, .{});
+        _ = try clap.help(out_writer, clap.Help, &params, .{
+            .description_on_new_line = false,
+            .description_indent = 4,
+        });
         return;
     }
 
@@ -77,7 +92,7 @@ pub fn main() !void {
         return;
     }
 
-    if (res.args.list_platforms != 0) {
+    if (res.args.@"list-platforms" != 0) {
         try Platform.list(stdout);
         try bw.flush();
         return;
@@ -85,14 +100,37 @@ pub fn main() !void {
 
     const platform = if (res.args.platform) |p| p else Platform.getPlatform();
 
-    var cache_dir = try kf.open(allocator, kf.KnownFolder.cache, .{}) orelse {
-        try stderr.print("Failed to get system cache directory.\n", .{});
-        return;
-    };
+    var cache_dir: fs.Dir = undefined;
     defer cache_dir.close();
+
+    if (res.args.@"cache-dir") |path| {
+        cache_dir = fs.cwd().makeOpenPath(path, .{}) catch |err| {
+            try errPrinter.p("Failed to open cache directory `{s}`: {}\n", .{ path, err });
+            return;
+        };
+    } else {
+        cache_dir = try kf.open(allocator, kf.KnownFolder.cache, .{}) orelse {
+            try errPrinter.p("Failed to get system cache directory.\n", .{});
+            return;
+        };
+    }
 
     var cache = try Cache.init(allocator, cache_dir);
     defer cache.deinit();
+
+    if (res.args.@"clear-cache" != 0) {
+        try stdout.print("Clearing cache...", .{});
+        if (!is_tty) try stdout.print("\n", .{});
+        try bw.flush();
+        try cache.clear();
+        if (is_tty) {
+            try at.clear.clearCurrentLine(stdout);
+            try at.cursor.setCursorColumn(stdout, 0);
+        }
+        try stdout.print("Cleared cache!\n", .{});
+        try bw.flush();
+        return;
+    }
 
     if (res.args.update != 0) {
         try stdout.print("Updating cache...", .{});
@@ -112,7 +150,7 @@ pub fn main() !void {
         cache.list(platform, stdout) catch |err| {
             switch (err) {
                 error.UninitializedCache => {
-                    try stderr.print("Cache not initialized. You should call `zldr -u`.\n", .{});
+                    try errPrinter.p("Cache not initialized. You should call `zldr -u`.\n", .{});
                     return;
                 },
                 else => |leftover| return leftover,
@@ -123,7 +161,7 @@ pub fn main() !void {
     }
 
     if (res.positionals.len == 0) {
-        try stderr.print("No page specified.\nRun `zldr -h to see useage.\n", .{});
+        try errPrinter.p("No page specified.\nRun `zldr -h to see useage.\n", .{});
         return;
     }
 
@@ -137,21 +175,19 @@ pub fn main() !void {
     const page = cache.getPage(platform, page_name) catch |err| {
         switch (err) {
             error.UninitializedCache => {
-                try stderr.print("Cache not initialized. You should call `zldr -u`.\n", .{});
+                try errPrinter.p("Cache not initialized. You should call `zldr -u`.\n", .{});
                 return;
             },
             error.PageNotFound => {
+                if (is_tty) try at.format.updateStyle(stderr, .{ .foreground = .Red }, null);
+                try errPrinter.p("Page for `{s}` not found in cache.\nYou can try updating the cache by running `zldr -u`.\nYou can also request a page for this command here:\n", .{page_name});
+                const link = "https://github.com/tldr-pages/tldr/issues/new?title=Page%20request:%20";
                 if (is_tty) {
-                    try stdout.print("Page for `{s}` not found.\nYou can request a page for this command here: ", .{page_name});
-                    try at.format.updateStyle(stdout, .{ .font_style = at.style.FontStyle.underline }, null);
-                    try stdout.print("https://github.com/tldr-pages/tldr/issues/new?title=page%20request:%20{s}\n", .{page_name});
-                    try at.format.resetStyle(stdout);
+                    try at.format.updateStyle(stderr, .{ .foreground = .Blue }, null);
+                    try stderr.print("\x1b]8;;{s}{s}\x1b\\{s}{s}\x1b]8;;\x1b\\\n", .{ link, page_name, link, page_name });
+                    try at.format.resetStyle(stderr);
                 } else {
-                    try stdout.print(
-                        // TODO: use terminal link escape codes
-                        "Page for `{s}` not found.\nYou can request a page for this command here: https://github.com/tldr-pages/tldr/issues/new?title=page%20request:%20{s}\n",
-                        .{ page_name, page_name },
-                    );
+                    try stderr.print("{s}{s}\n", .{ link, page_name });
                 }
                 try bw.flush();
                 return;
@@ -159,12 +195,15 @@ pub fn main() !void {
             else => |leftover| return leftover,
         }
     };
+
     defer allocator.free(page);
+
     if (is_tty) {
         try Formatter.print(stdout, page);
     } else {
         try stdout.print("{s}", .{page});
     }
     try bw.flush();
+
     return;
 }

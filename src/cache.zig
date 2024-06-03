@@ -31,6 +31,15 @@ pub fn init(allocator: Allocator, parent_dir: fs.Dir) !Cache {
     };
 }
 
+/// Clears the cache directory.
+pub fn clear(self: *Cache) !void {
+    if (self.cache_dir != null) {
+        self.cache_dir.?.close();
+        try self.parent_dir.deleteTree(cache_dir_name);
+    }
+    self.cache_dir = null;
+}
+
 /// Deinitializes the cache.
 pub fn deinit(self: *Cache) void {
     if (self.cache_dir != null)
@@ -39,12 +48,7 @@ pub fn deinit(self: *Cache) void {
 
 /// Downloads the latest tldr pages and extracts them to the cache directory.
 pub fn update(self: *Cache) !void {
-    if (self.cache_dir != null) {
-        // TODO: this seems bad
-        // TODO: refactor into a clear cache method
-        self.cache_dir.?.close();
-        try self.parent_dir.deleteTree(cache_dir_name);
-    }
+    try clear(self);
     try self.parent_dir.makeDir(cache_dir_name);
     self.cache_dir = try self.parent_dir.openDir(cache_dir_name, .{});
 
@@ -79,6 +83,7 @@ pub fn update(self: *Cache) !void {
     try std.zip.extract(self.cache_dir.?, tmp_file.f.seekableStream(), .{});
 }
 
+// FIXME: see comment in getPage
 fn dirHasFile(dir: fs.Dir, file_name: []const u8) !bool {
     dir.access(file_name, .{}) catch |err| switch (err) {
         fs.Dir.AccessError.FileNotFound => return false,
@@ -109,6 +114,8 @@ pub fn getPage(self: *Cache, platform: Platform, page_name: []const u8) ![]const
         const values = std.enums.values(Platform);
         for (values) |p| {
             if (p == Platform.common or p == platform) continue;
+            // FIXME: dirHasFile can lead to Time-Of-Check Time-Of-Use race.
+            // Instead, we should handle the error from openDir directly.
             if (try dirHasFile(try self.cache_dir.?.openDir(@tagName(p), .{}), page_file_name)) {
                 std.log.warn("Page not found in platform or common folder, falling back to {s}", .{@tagName(p)});
                 found_dir = try self.cache_dir.?.openDir(@tagName(p), .{});
