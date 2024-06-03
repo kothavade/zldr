@@ -97,7 +97,7 @@ Ved Kothavade <ved@kothavade.com>
  / /_/ /_/ / /    
 /___/\__,_/_/     
 
-A fast tdlr client written in Zig
+A fast tdlr client written in Zig.
 
 USAGE:
     zldr [OPTIONS] <page>

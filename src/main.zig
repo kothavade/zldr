@@ -75,7 +75,7 @@ pub fn main() !void {
             \\ / /_/ /_/ / /    
             \\/___/\__,_/_/     
         , .{});
-        try stdout.print("\n\nA fast tdlr client written in Zig\n\n", .{});
+        try stdout.print("\n\nA fast tdlr client written in Zig.\n\n", .{});
         try stdout.print("USAGE:\n    zldr [OPTIONS] <page>\n\n", .{});
         try stdout.print("OPTIONS:\n\n", .{});
         try bw.flush();
