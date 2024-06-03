@@ -157,6 +157,6 @@ In no particular order:
 ## Credits
 
 - [src/tmpfile.zig](./src/tmpfile.zig) is a modified version of [liyu1981/tmpfile.zig](https://github.com/liyu1981/tmpfile.zig).
-- [zig-clap](https://github.com/liyu1981/tmpfile.zig) is used for CLI argument parsing.
+- [zig-clap](https://github.com/Hejsil/zig-clap) is used for CLI argument parsing.
 - [ziglibs/known-folders](https://github.com/ziglibs/known-folders) is used to find the cache directory.
 
