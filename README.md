@@ -145,19 +145,13 @@ zig build --release=fast # or --release=safe, --release=small depending on your 
 
 ## Tasks
 In no particular order:
-- [x] Download tldr pages
-- [x] Unzip pages to an offline cache
-- [x] Search for and print a page
-- [x] Find and use system cache directory
-- [x] If page not in platform or common folder, search other platforms with a warning
-- [x] Prettify markdown output
-- [x] Nix flake for building
-- [ ] GitHub Actions
+- [ ] GitHub Actions for releases.
 - [ ] Support language selection and detection
 - [ ] [tldr-pages client specification](https://github.com/tldr-pages/tldr/blob/main/CLIENT-SPECIFICATION.md) conformance
 - [ ] Shell autocompletions
 - [ ] [charmbracelet/vhs](https://github.com/charmbracelet/vhs) GIF for README
 - [ ] Add tests
+- [ ] List common pkgs in `-l` as well
 - [ ] use `std.Progress`
 
 ## Credits
