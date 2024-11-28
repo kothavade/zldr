@@ -54,7 +54,7 @@ For example, here is the tldr page for `tar`:
 
 ## Fast?
 
-Here are some rudimentary benchmarks of `zldr` against [tealdeer](https://github.com/dbrgn/tealdeer), [tlrc](https://github.com/tldr-pages/tlrc), and [tldr-c-client](https://github.com/tldr-pages/tldr-c-client) using [hyperfine](https://github.com/sharkdp/hyperfine) on my machine. Each of the other clients was downloaded from nixpkgs, presumably build their respective release modes, and `zldr` was built with `--release=fast`.
+Here are benchmarks of `zldr` against [tealdeer (Rust)](https://github.com/dbrgn/tealdeer), [tlrc (Rust)](https://github.com/tldr-pages/tlrc), and [tldr-c-client (C)](https://github.com/tldr-pages/tldr-c-client) using [hyperfine](https://github.com/sharkdp/hyperfine) on my machine. Each of the other clients was downloaded from nixpkgs, and `zldr` was built with `--release=fast`.
 
 ```
 ~/code/zldr main λ hyperfine -N --warmup 10 \
