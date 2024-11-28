@@ -58,9 +58,9 @@ Here are benchmarks of `zldr` against [tealdeer (Rust)](https://github.com/dbrgn
 
 ```
 ~/code/zldr main λ hyperfine -N --warmup 10 \
-  "/nix/store/...-tealdeer-1.6.1/bin/tldr ip" -n "tealdeer (rust, unoffical)" \
-  "/nix/store/...-tlrc-1.9.2/bin/tldr ip" -n "tlrc (rust, offical)" \
-  "/nix/store/...-tldr-1.6.1/bin/tldr ip" -n "tldr-c (c, offical)" \
+  ".../tealdeer-1.6.1/tldr ip" -n "tealdeer (rust, unoffical)" \
+  ".../tlrc-1.9.2/tldr ip" -n "tlrc (rust, offical)" \
+  ".../tldr-1.6.1/tldr ip" -n "tldr-c (c, offical)" \
   "./zig-out/bin/zldr ip" -n "zldr (zig, unoffical)"
 
 Benchmark 1: tealdeer (rust, unoffical)
